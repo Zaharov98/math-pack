@@ -14,6 +14,13 @@ from data_reader import DataReader
 pd.set_option('display.max_columns', 600)
 
 
+def display_logarithmic_histogram(yte, cat_predAt):
+    # Logarithmic Histogram
+    plt.hist((np.reshape(cat_predAt, (yte.shape[0],)), yte), bins=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], log=True)
+    plt.legend(labels=('preds', 'test'))
+    plt.show()
+
+
 def cv_and_test(X, y, Xte, yte):
     # 80/20 train test split cross-validation
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=1234)
@@ -42,18 +49,41 @@ def cv_and_test(X, y, Xte, yte):
     return cat_predA, cat_predLL, cat_predAt, cat_predLLt
 
 
+def combine_data(all_data):
+    def bincount_2d_vectorized(a):
+        N = a.max() + 1
+        a_offs = a + np.arange(a.shape[0])[:, None] * N
+        return np.bincount(a_offs.ravel(), minlength=a.shape[0] * N).reshape(-1, N)
+
+    S = all_data.iloc[:, [0, 2, 4, 6, 8]].astype(int)
+    S = pd.DataFrame(bincount_2d_vectorized(S.values), columns=['suit0', 'suit1', 'suit2', 'suit3', 'suit4'])
+    all_data = pd.merge(all_data, S, how='left', left_index=True, right_index=True).drop(['suit0'], axis=1)
+
+    R = all_data.iloc[:, np.arange(1, 10, 2)].astype(int)
+    cols = ['rank{}'.format(x) for x in range(0, 14, 1)]
+    R = pd.DataFrame(bincount_2d_vectorized(R.values), columns=cols)
+    all_data = pd.merge(all_data, R, how='left', left_index=True, right_index=True).drop(['rank0'], axis=1)
+
+    X = all_data.iloc[:25010, :].drop(['hand'], axis=1)
+    Xte = all_data.iloc[25010:, :].drop(['hand'], axis=1)
+
+    return X, Xte
+
+
 def main():
     reader = DataReader('data/poker-hand-testing.data', 'data/poker-hand-training-true.data')
     testing = reader.get_test_data()
     training = reader.get_train_data()
 
-    X = training.drop(['hand'], axis=1)
     y = training.hand
-    Xte = testing.drop(['hand'], axis=1)
     yte = testing.hand
 
-    print(testing.head())
-    print(training.head())
+    # X = training.drop(['hand'],axis=1)
+    # Xte = testing.drop(['hand'],axis=1)
+    X, Xte = combine_data(pd.concat([training, testing, ]).reset_index(drop=True))
+
+    cat_predA, cat_predLL, cat_predAt, cat_predLLt = cv_and_test(X, y, Xte, yte)
+    display_logarithmic_histogram(yte, cat_predAt)
 
 
 if __name__ == '__main__':

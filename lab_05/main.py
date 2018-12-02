@@ -1,4 +1,6 @@
 
+from itertools import chain
+
 
 def main():
     file_name = 'data.txt'
@@ -6,9 +8,12 @@ def main():
         lines = file.readlines()
         lines_count = len(lines)
 
-        letters_count = sum([len(line) for line in lines])
+        words = list(chain.from_iterable([line.split() for line in lines]))
+        words_count = len(words)
 
-    print('Lines: {0}\nLetters: {1}'.format(lines_count, letters_count))
+        letters_count = sum([len(word) for word in words])
+
+    print('Lines: {0}\nWords: {1}\nLetters: {2}'.format(lines_count, words_count, letters_count))
 
 
 if __name__ == '__main__':

@@ -4,15 +4,23 @@ import math
 import functools
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy import interpolate
 
 
-lamb_positive = [[8, 3]]   # интенсивность входного потока положительных заявок
-lamb_negative = [[3, 14]]   # интенсивность входного потока отрицательных заявок
-p_positive = [[1, 1], [1, 1], [1, 1]]  # вероятность перехода положительных заявок
-p_negative = [[1, 1], [1, 1], [1, 1]]  # вероятность перехода отрицательных заявок
-mu = [4, 2]                # интенсивность обслуживания заявок
+lamb_positive = [[2, 3]]   # интенсивность входного потока положительных заявок
+lamb_negative = [[3, 4]]   # интенсивность входного потока отрицательных заявок
+p_positive = [[1, 0.3], [1, 0.3], [1, 0.6]]  # вероятность перехода положительных заявок
+p_negative = [[0.4, 1], [0.4, 0.1], [1, 1]]  # вероятность перехода отрицательных заявок
+mu = [2, 2]                # интенсивность обслуживания заявок
 
 alp = [1, 1]               # начальное состояние сети
+
+# lamb_positive = [[2]]
+# lamb_negative = [[3]]
+# p_positive = [[1, 1], [1, 1]]
+# p_negative = [[1, 1], [1, 1]]
+# mu = [2]
+# alp = [1]
 
 
 n = len(alp)
@@ -113,7 +121,11 @@ def R(i):
 
 
 def display_plot(t, s):
-    plt.plot(t, s)
+    # plt.plot(t, s)
+
+    f = interpolate.interp1d(t, s, kind='cubic')
+    x_interp = np.arange(min(t), max(t), 0.01)
+    plt.plot(x_interp, f(x_interp))
     plt.show()
 
 

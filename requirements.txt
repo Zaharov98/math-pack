@@ -4,3 +4,4 @@ scipy
 pandas
 sklearn
 catboost
+seaborn

@@ -5,15 +5,16 @@ import functools
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import interpolate
+import mpl_toolkits.axisartist as AA
 
 
-lamb_positive = [[2, 3]]   # интенсивность входного потока положительных заявок
-lamb_negative = [[3, 4]]   # интенсивность входного потока отрицательных заявок
-p_positive = [[1, 0.3], [1, 0.3], [1, 0.6]]  # вероятность перехода положительных заявок
-p_negative = [[0.4, 1], [0.4, 0.1], [1, 1]]  # вероятность перехода отрицательных заявок
-mu = [2, 2]                # интенсивность обслуживания заявок
+lamb_positive = [[3, 4]]   # интенсивность входного потока положительных заявок
+lamb_negative = [[1, 0.02]]   # интенсивность входного потока отрицательных заявок
+p_positive = [[0.3, 0.22], [0.144, 0.98], [0.176, 0.6]]  # вероятность перехода положительных заявок
+p_negative = [[1, 0.1], [0.4, 0.654], [0.45, 0.54]]  # вероятность перехода отрицательных заявок
+mu = [5, 5]                # интенсивность обслуживания заявок
 
-alp = [1, 1]               # начальное состояние сети
+alp = [2, 4]               # начальное состояние сети
 
 # lamb_positive = [[2]]
 # lamb_negative = [[3]]
@@ -121,11 +122,17 @@ def R(i):
 
 
 def display_plot(t, s):
-    # plt.plot(t, s)
+    fig = plt.figure(1)
+    ax = AA.Subplot(fig, 1, 1, 1)
+    fig.add_subplot(ax)
+
+    ax.axis["top", "right"].set_visible(False)
+    ax.axis["bottom"].set_axisline_style("->", size=1.5)
+    ax.axis["left"].set_axisline_style("->", size=1.5)
 
     f = interpolate.interp1d(t, s, kind='cubic')
     x_interp = np.arange(min(t), max(t), 0.01)
-    plt.plot(x_interp, f(x_interp))
+    ax.plot(x_interp, f(x_interp))
     plt.show()
 
 
